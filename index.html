@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f4f3ed">
-  <title>KeyLab — Kiểm tra bàn phím & chuột</title>
+  <title>KeyLab — Luyện gõ và kiểm tra thiết bị</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
 
@@ -21,6 +21,20 @@
       --panel: #fffefa;
       --mono: 'DM Mono', 'Courier New', monospace;
       --sans: 'Manrope', 'Segoe UI', sans-serif;
+    }
+
+    body[data-theme="night"] {
+      color-scheme: dark;
+      --paper: #171d1b; --ink: #e7eee8; --muted: #9aa79d; --line: #39433d;
+      --green: #c9ef74; --green-strong: #acd75c; --coral: #ff8871; --blue: #a9c8ff; --panel: #202824;
+    }
+    body[data-theme="ocean"] {
+      --paper: #eaf1f2; --ink: #203237; --muted: #697d80; --line: #cbd9d9;
+      --green: #98ded3; --green-strong: #48aa9c; --coral: #ef8068; --blue: #9bc9e9; --panel: #fbffff;
+    }
+    body[data-theme="rose"] {
+      --paper: #f5eeeb; --ink: #382727; --muted: #8c7371; --line: #e2d2ce;
+      --green: #f1b3a5; --green-strong: #cf7868; --coral: #d8564c; --blue: #b6c8e8; --panel: #fffaf8;
     }
 
     * { box-sizing: border-box; }
@@ -49,6 +63,12 @@
       width: 31px; height: 31px; display: grid; place-items: center;
       border-radius: 9px; background: var(--ink); color: var(--green); font-size: 16px;
     }
+    .top-actions { display: flex; align-items: center; gap: 18px; }
+    .main-nav { display: flex; align-items: center; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+    .nav-button { min-height: 31px; padding: 0 11px; border: 0; border-radius: 4px; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 700; }
+    .nav-button[aria-current="page"] { background: var(--ink); color: var(--paper); }
+    .icon-button { display: grid; width: 35px; height: 35px; place-items: center; border: 1px solid var(--line); border-radius: 5px; background: var(--panel); cursor: pointer; font-size: 16px; }
+    .icon-button:hover { border-color: var(--green-strong); }
     .top-meta { display: flex; align-items: center; gap: 9px; color: var(--muted); font: 11px var(--mono); text-transform: uppercase; }
     .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-strong); box-shadow: 0 0 0 4px #91c83d20; }
 
@@ -138,6 +158,67 @@
     .page-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 17px; color: var(--muted); font: 9px var(--mono); }
     .page-foot span:last-child { text-align: right; }
 
+    .page { display: none; }
+    .page.active { display: block; }
+    .practice-wrap { max-width: 1030px; margin: 0 auto; padding: 28px 0 12px; }
+    .practice-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 33px; }
+    .practice-heading h1 { font-size: 32px; }
+    .practice-heading p { max-width: 340px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .practice-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .tool-group { display: flex; align-items: center; gap: 5px; }
+    .mode-button, .option-button { min-height: 32px; padding: 0 10px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--muted); cursor: pointer; font: 10px var(--mono); }
+    .mode-button[aria-pressed="true"], .option-button[aria-pressed="true"] { border-color: var(--line); background: var(--panel); color: var(--ink); }
+    .toolbar-divider { width: 1px; height: 20px; margin: 0 4px; background: var(--line); }
+    .practice-language { height: 32px; padding: 0 9px; border: 1px solid transparent; border-radius: 4px; outline: 0; background: transparent; color: var(--muted); font: 10px var(--mono); }
+    .practice-language:focus { border-color: var(--green-strong); }
+    .typing-stats { display: flex; align-items: end; gap: 29px; margin: 28px 0 18px; }
+    .typing-stat-label { margin-bottom: 4px; color: var(--muted); font: 9px var(--mono); text-transform: uppercase; }
+    .typing-stat-value { min-width: 48px; color: var(--ink); font: 21px var(--mono); }
+    .typing-stat-value.timer { color: var(--green-strong); }
+    .typing-area { position: relative; min-height: 206px; padding: 24px 23px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); cursor: text; }
+    .typing-text { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 9px 10px; overflow: hidden; max-height: 150px; color: #a5ada6; font: 24px/1.7 var(--typing-font, var(--mono)); font-size: var(--typing-size, 24px); scrollbar-width: none; }
+    .typing-text::-webkit-scrollbar { display: none; }
+    .typing-word { display: inline-flex; white-space: pre; }
+    .typing-word > span { white-space: pre; }
+    .typing-word { position: relative; white-space: pre; }
+    .typing-word .correct { color: var(--ink); }
+    .typing-word .incorrect { border-radius: 2px; background: #ff765f36; color: #d94d3b; }
+    .typing-word .current { border-left: 2px solid var(--green-strong); animation: caret-blink 1s steps(2, start) infinite; }
+    .typing-text.hide-caret .current { border-left-color: transparent; animation: none; }
+    .typing-word .extra { color: #d94d3b; text-decoration: underline; text-decoration-color: #d94d3b80; }
+    @keyframes caret-blink { to { border-color: transparent; } }
+    .typing-input { position: absolute; z-index: -1; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
+    .typing-placeholder { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font: 11px var(--mono); pointer-events: none; }
+    .typing-area.started .typing-placeholder, .typing-area.finished .typing-placeholder { display: none; }
+    .typing-area.finished { border-color: var(--green-strong); }
+    .typing-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; color: var(--muted); font: 10px var(--mono); }
+    .restart-button { display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); cursor: pointer; font: 10px var(--mono); }
+    .restart-button:hover { border-color: var(--green-strong); }
+    .result-bar { display: none; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 24px; padding: 18px 20px; border-left: 3px solid var(--green-strong); background: var(--panel); }
+    .result-bar.visible { display: grid; }
+    .result-value { color: var(--ink); font: 24px var(--mono); }
+    .result-label { margin-top: 5px; color: var(--muted); font: 9px var(--mono); text-transform: uppercase; }
+    .practice-foot { margin-top: 49px; color: var(--muted); font: 9px var(--mono); text-align: center; }
+    .settings-panel { display: none; margin-top: 23px; padding: 19px 21px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+    .settings-panel.open { display: block; animation: reveal .18s ease-out; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .settings-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .settings-head h2 { margin: 0; font-size: 13px; }
+    .settings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .setting-label { display: block; margin-bottom: 11px; color: var(--muted); font: 9px var(--mono); text-transform: uppercase; }
+    .theme-options { display: flex; gap: 9px; }
+    .theme-choice { display: grid; width: 29px; height: 29px; place-items: center; border: 2px solid transparent; border-radius: 50%; cursor: pointer; }
+    .theme-choice[aria-pressed="true"] { outline: 1px solid var(--ink); outline-offset: 2px; }
+    .theme-choice[data-theme-choice="paper"] { background: #c9ef74; }
+    .theme-choice[data-theme-choice="night"] { background: #31483e; }
+    .theme-choice[data-theme-choice="ocean"] { background: #78c9bd; }
+    .theme-choice[data-theme-choice="rose"] { background: #e79787; }
+    .setting-control { width: 100%; accent-color: var(--green-strong); }
+    .setting-select { min-height: 32px; padding: 0 9px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink); font: 10px var(--mono); }
+    .custom-text { display: none; width: 100%; min-height: 80px; resize: vertical; margin-top: 14px; padding: 11px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink); font: 12px/1.6 var(--mono); }
+    .custom-text.visible { display: block; }
+    .practice-toast { min-height: 16px; margin-top: 8px; color: var(--muted); font: 9px var(--mono); }
+
     @media (max-width: 980px) {
       .shell { padding-right: 24px; padding-left: 24px; }
       .dashboard { grid-template-columns: minmax(0, 1fr); }
@@ -162,6 +243,20 @@
       .mouse-illustration { min-height: 160px; }
       .page-foot { align-items: flex-start; flex-direction: column; gap: 5px; }
       .page-foot span:last-child { text-align: left; }
+      .top-actions { gap: 8px; }
+      .top-meta { display: none; }
+      .nav-button { padding: 0 8px; font-size: 9px; }
+      .practice-wrap { padding-top: 24px; }
+      .practice-heading { align-items: flex-start; flex-direction: column; gap: 8px; margin-bottom: 23px; }
+      .practice-heading h1 { font-size: 27px; }
+      .practice-toolbar { align-items: flex-start; flex-direction: column; }
+      .tool-group { flex-wrap: wrap; }
+      .typing-stats { gap: 19px; margin-top: 22px; }
+      .typing-area { min-height: 190px; padding: 17px 14px; }
+      .typing-text { gap: 7px 8px; }
+      .settings-grid { grid-template-columns: 1fr 1fr; gap: 18px 12px; }
+      .result-bar { grid-template-columns: repeat(2, 1fr); }
+      .practice-foot { margin-top: 30px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -172,10 +267,89 @@
   <div class="shell">
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true">⌘</span><span>keylab<span style="color:#91c83d">.</span></span></div>
-      <div class="top-meta"><span class="live-dot" aria-hidden="true"></span><span>Kiểm tra trực tiếp</span></div>
+      <div class="top-actions">
+        <nav class="main-nav" aria-label="Điều hướng chính">
+          <button class="nav-button" type="button" data-page-target="practice" aria-current="page">Luyện gõ</button>
+          <button class="nav-button" type="button" data-page-target="device">Thiết bị</button>
+        </nav>
+        <button class="icon-button" id="settings-toggle" type="button" aria-label="Mở tùy chỉnh giao diện" aria-expanded="false" title="Tùy chỉnh giao diện">⚙</button>
+      </div>
     </header>
 
     <main>
+      <section class="page active" id="page-practice" aria-labelledby="practice-title">
+        <div class="practice-wrap">
+          <div class="practice-heading">
+            <div><p class="eyebrow">Phòng luyện tập / 02</p><h1 id="practice-title">Gõ đúng nhịp của bạn.</h1></div>
+            <p>Luyện tốc độ và độ chính xác với đoạn văn ngắn. Kết quả chỉ được tính trong phiên hiện tại.</p>
+          </div>
+
+          <div class="practice-toolbar" aria-label="Cài đặt bài luyện">
+            <div class="tool-group" role="group" aria-label="Chế độ bài luyện">
+              <button class="mode-button" type="button" data-mode="time" aria-pressed="true">Thời gian</button>
+              <button class="mode-button" type="button" data-mode="words" aria-pressed="false">Số từ</button>
+              <button class="mode-button" type="button" data-mode="custom" aria-pressed="false">Tùy chọn</button>
+              <span class="toolbar-divider" aria-hidden="true"></span>
+              <select class="practice-language" id="practice-language" aria-label="Ngôn ngữ văn bản">
+                <option value="vi">Tiếng Việt</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+            <div class="tool-group" id="time-options" role="group" aria-label="Thời lượng">
+              <button class="option-button" type="button" data-value="15" aria-pressed="false">15s</button>
+              <button class="option-button" type="button" data-value="30" aria-pressed="true">30s</button>
+              <button class="option-button" type="button" data-value="60" aria-pressed="false">60s</button>
+            </div>
+            <div class="tool-group" id="word-options" role="group" aria-label="Số từ" hidden>
+              <button class="option-button" type="button" data-value="10" aria-pressed="false">10 từ</button>
+              <button class="option-button" type="button" data-value="25" aria-pressed="true">25 từ</button>
+              <button class="option-button" type="button" data-value="50" aria-pressed="false">50 từ</button>
+            </div>
+          </div>
+
+          <div class="typing-stats" aria-live="polite">
+            <div><div class="typing-stat-label">Thời gian</div><div class="typing-stat-value timer" id="practice-timer">30</div></div>
+            <div><div class="typing-stat-label">Tốc độ</div><div class="typing-stat-value" id="live-wpm">0</div></div>
+            <div><div class="typing-stat-label">Chính xác</div><div class="typing-stat-value" id="live-accuracy">100%</div></div>
+          </div>
+
+          <div class="typing-area" id="typing-area" role="group" aria-label="Bài luyện gõ. Nhấn vào đây rồi bắt đầu gõ">
+            <div class="typing-text" id="typing-text" aria-hidden="true"></div>
+            <div class="typing-placeholder" id="typing-placeholder">Nhấn vào đây hoặc bắt đầu gõ</div>
+            <textarea class="typing-input" id="typing-input" aria-label="Nhập văn bản luyện gõ" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+          </div>
+          <textarea class="custom-text" id="custom-text" aria-label="Nội dung bài luyện tùy chỉnh" placeholder="Dán hoặc nhập đoạn văn bạn muốn luyện..."></textarea>
+          <div class="practice-toast" id="practice-message" aria-live="polite"></div>
+          <div class="typing-actions">
+            <span id="progress-label">0 / 30 giây</span>
+            <button class="restart-button" id="restart-practice" type="button"><span aria-hidden="true">↻</span> Làm lại</button>
+          </div>
+          <div class="result-bar" id="result-bar" aria-live="polite">
+            <div><div class="result-value" id="result-wpm">0</div><div class="result-label">Từ / phút</div></div>
+            <div><div class="result-value" id="result-accuracy">100%</div><div class="result-label">Độ chính xác</div></div>
+            <div><div class="result-value" id="result-correct">0</div><div class="result-label">Ký tự đúng</div></div>
+            <div><div class="result-value" id="result-errors">0</div><div class="result-label">Lỗi</div></div>
+          </div>
+
+          <section class="settings-panel" id="settings-panel" aria-labelledby="settings-title">
+            <div class="settings-head"><h2 id="settings-title">Tùy chỉnh giao diện</h2><button class="text-button" id="close-settings" type="button">Đóng</button></div>
+            <div class="settings-grid">
+              <div><span class="setting-label">Chủ đề</span><div class="theme-options" role="group" aria-label="Chọn chủ đề">
+                <button class="theme-choice" data-theme-choice="paper" type="button" aria-label="Giấy sáng" aria-pressed="true" title="Giấy sáng"></button>
+                <button class="theme-choice" data-theme-choice="night" type="button" aria-label="Rừng đêm" aria-pressed="false" title="Rừng đêm"></button>
+                <button class="theme-choice" data-theme-choice="ocean" type="button" aria-label="Hồ xanh" aria-pressed="false" title="Hồ xanh"></button>
+                <button class="theme-choice" data-theme-choice="rose" type="button" aria-label="Đất hồng" aria-pressed="false" title="Đất hồng"></button>
+              </div></div>
+              <label><span class="setting-label">Cỡ chữ <output id="font-size-value">24 px</output></span><input class="setting-control" id="font-size" type="range" min="18" max="34" value="24" aria-label="Cỡ chữ bài luyện"></label>
+              <label><span class="setting-label">Kiểu chữ</span><select class="setting-select" id="font-family"><option value="mono">Mono</option><option value="sans">Sans</option></select></label>
+              <label><span class="setting-label">Con trỏ</span><select class="setting-select" id="caret-setting"><option value="on">Hiện con trỏ</option><option value="off">Ẩn con trỏ</option></select></label>
+            </div>
+          </section>
+          <div class="practice-foot">KEYLAB / TYPE PRACTICE · NHẤN TAB ĐỂ LÀM LẠI</div>
+        </div>
+      </section>
+
+      <section class="page" id="page-device" aria-label="Kiểm tra thiết bị">
       <section class="intro" aria-labelledby="page-title">
         <div><p class="eyebrow">Công cụ kiểm tra thiết bị / 01</p><h1 id="page-title">Bàn phím &amp; chuột</h1></div>
         <p>Nhấn phím hoặc di chuyển chuột để kiểm tra phản hồi. Trạng thái được cập nhật ngay trên sơ đồ.</p>
@@ -233,6 +407,7 @@
         </div>
       </div>
       <footer class="page-foot"><span>KEYLAB / INPUT DIAGNOSTICS</span><span>Không lưu dữ liệu · Xử lý ngay trên trình duyệt</span></footer>
+      </section>
     </main>
   </div>
 
@@ -346,6 +521,7 @@
     }
 
     document.addEventListener('keydown', (event) => {
+      if (document.querySelector('#page-practice').classList.contains('active')) return;
       const name = displayKeyName(event);
       document.querySelector('#key-cap').textContent = event.key === ' ' ? 'Space' : name;
       document.querySelector('#key-name').textContent = `${name} · ${event.code}`;
@@ -442,6 +618,270 @@
       addEvent(event.deltaY < 0 ? 'Cuộn chuột lên' : 'Cuộn chuột xuống');
       updateMouseStatus('Đang cuộn');
     }, { passive: true });
+
+    const practice = {
+      mode: 'time', duration: 30, wordCount: 25, language: 'vi', typed: '',
+      target: '', startedAt: null, timerId: null, finished: false, composing: false
+    };
+    const sampleCustomText = 'Mỗi ngày dành một chút thời gian để luyện tập, bạn sẽ gõ nhanh và chính xác hơn.';
+    const wordBanks = {
+      vi: 'một ngày mới bắt đầu bằng những điều giản dị chúng ta học cách tập trung lắng nghe suy nghĩ rõ ràng và kiên trì bước tiếp mỗi lần luyện tập giúp đôi tay tự tin hơn tốc độ đến từ sự chính xác nhịp điệu tốt tạo nên thói quen bền vững hãy dành thời gian cho điều quan trọng công việc nhỏ hôm nay sẽ mở ra cơ hội ngày mai bình tĩnh quan sát và viết điều mình muốn chia sẻ cùng mọi người',
+      en: 'a new day begins with simple things we learn to focus listen think clearly and keep moving every practice makes our hands more confident speed grows from accuracy a steady rhythm builds strong habits take time for what matters small work today can open doors tomorrow stay curious and write what you want to share with everyone'
+    };
+    const practiceInput = document.querySelector('#typing-input');
+    const typingArea = document.querySelector('#typing-area');
+    const customText = document.querySelector('#custom-text');
+    const practiceText = document.querySelector('#typing-text');
+
+    function savedSetting(key, fallback) {
+      try { return localStorage.getItem(`keylab-${key}`) || fallback; } catch { return fallback; }
+    }
+
+    function saveSetting(key, value) {
+      try { localStorage.setItem(`keylab-${key}`, value); } catch { /* Storage can be unavailable for local files. */ }
+    }
+
+    function applyTheme(theme) {
+      document.body.dataset.theme = theme;
+      document.querySelectorAll('[data-theme-choice]').forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.themeChoice === theme));
+      });
+      saveSetting('theme', theme);
+    }
+
+    function setPracticeMode(mode) {
+      practice.mode = mode;
+      document.querySelectorAll('[data-mode]').forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.mode === mode));
+      });
+      document.querySelector('#time-options').hidden = mode !== 'time';
+      document.querySelector('#word-options').hidden = mode !== 'words';
+      customText.classList.toggle('visible', mode === 'custom');
+      resetPractice();
+    }
+
+    function makeTarget() {
+      if (practice.mode === 'custom') return (customText.value || sampleCustomText).trim().replace(/\s+/g, ' ');
+      const bank = wordBanks[practice.language].split(' ');
+      const requiredWords = practice.mode === 'words' ? practice.wordCount : 180;
+      const words = [];
+      while (words.length < requiredWords) {
+        const word = bank[Math.floor(Math.random() * bank.length)];
+        words.push(word);
+      }
+      return words.join(' ');
+    }
+
+    function renderTyping() {
+      practiceText.replaceChildren();
+      const words = practice.target.split(' ');
+      let characterIndex = 0;
+      for (let wordIndex = 0; wordIndex < words.length; wordIndex += 1) {
+        const wordElement = document.createElement('span');
+        wordElement.className = 'typing-word';
+        const word = words[wordIndex] + (wordIndex < words.length - 1 ? ' ' : '');
+        for (const character of word) {
+          const characterElement = document.createElement('span');
+          characterElement.textContent = character;
+          if (characterIndex < practice.typed.length) {
+            characterElement.classList.add(practice.typed[characterIndex] === character ? 'correct' : 'incorrect');
+          } else if (characterIndex === practice.typed.length && !practice.finished) {
+            characterElement.classList.add('current');
+          }
+          wordElement.append(characterElement);
+          characterIndex += 1;
+        }
+        practiceText.append(wordElement);
+      }
+      if (practice.typed.length >= practice.target.length && !practice.finished) {
+        const caret = document.createElement('span');
+        caret.className = 'typing-word';
+        const marker = document.createElement('span');
+        marker.className = 'current';
+        marker.textContent = ' ';
+        caret.append(marker);
+        practiceText.append(caret);
+      }
+      for (const character of practice.typed.slice(practice.target.length)) {
+        const extra = document.createElement('span');
+        extra.className = 'extra';
+        extra.textContent = character;
+        practiceText.append(extra);
+      }
+      const current = practiceText.querySelector('.current');
+      if (current) {
+        const textBounds = practiceText.getBoundingClientRect();
+        const currentBounds = current.getBoundingClientRect();
+        if (currentBounds.bottom > textBounds.bottom) practiceText.scrollTop += currentBounds.bottom - textBounds.bottom;
+        else if (currentBounds.top < textBounds.top) practiceText.scrollTop -= textBounds.top - currentBounds.top;
+      } else if (!practice.typed.length) {
+        practiceText.scrollTop = 0;
+      }
+    }
+
+    function measureTyping() {
+      let correct = 0;
+      for (let index = 0; index < Math.min(practice.typed.length, practice.target.length); index += 1) {
+        if (practice.typed[index] === practice.target[index]) correct += 1;
+      }
+      const elapsedSeconds = practice.startedAt ? Math.max(1, (performance.now() - practice.startedAt) / 1000) : 0;
+      const accuracy = practice.typed.length ? Math.round((correct / practice.typed.length) * 100) : 100;
+      const wpm = elapsedSeconds ? Math.round((correct / 5) / (elapsedSeconds / 60)) : 0;
+      return { correct, accuracy, wpm, elapsedSeconds };
+    }
+
+    function updatePracticeStats() {
+      const { accuracy, wpm, elapsedSeconds } = measureTyping();
+      document.querySelector('#live-wpm').textContent = String(wpm);
+      document.querySelector('#live-accuracy').textContent = `${accuracy}%`;
+      if (practice.mode === 'time') {
+        const remaining = Math.max(0, practice.duration - Math.floor(elapsedSeconds));
+        document.querySelector('#practice-timer').textContent = String(remaining);
+        document.querySelector('#progress-label').textContent = `${practice.duration - remaining} / ${practice.duration} giây`;
+      } else if (practice.mode === 'words') {
+        const typedWords = practice.typed.trim() ? practice.typed.trim().split(/\s+/).length : 0;
+        document.querySelector('#practice-timer').textContent = '∞';
+        document.querySelector('#progress-label').textContent = `${Math.min(typedWords, practice.wordCount)} / ${practice.wordCount} từ`;
+      } else {
+        document.querySelector('#practice-timer').textContent = '—';
+        document.querySelector('#progress-label').textContent = `${Math.min(practice.typed.length, practice.target.length)} / ${practice.target.length} ký tự`;
+      }
+    }
+
+    function finishPractice() {
+      if (practice.finished) return;
+      practice.finished = true;
+      clearInterval(practice.timerId);
+      typingArea.classList.add('finished');
+      const { correct, accuracy, wpm } = measureTyping();
+      document.querySelector('#result-wpm').textContent = String(wpm);
+      document.querySelector('#result-accuracy').textContent = `${accuracy}%`;
+      document.querySelector('#result-correct').textContent = String(correct);
+      document.querySelector('#result-errors').textContent = String(practice.typed.length - correct);
+      document.querySelector('#result-bar').classList.add('visible');
+      document.querySelector('#practice-message').textContent = 'Hoàn thành bài luyện. Nhấn Làm lại hoặc Tab để bắt đầu lượt mới.';
+      practiceInput.blur();
+      renderTyping();
+    }
+
+    function resetPractice() {
+      clearInterval(practice.timerId);
+      practice.mode = document.querySelector('[data-mode][aria-pressed="true"]')?.dataset.mode || practice.mode;
+      practice.target = makeTarget();
+      practice.typed = '';
+      practice.startedAt = null;
+      practice.finished = false;
+      practiceInput.value = '';
+      typingArea.classList.remove('started', 'finished');
+      document.querySelector('#result-bar').classList.remove('visible');
+      document.querySelector('#practice-message').textContent = practice.mode === 'custom' && !customText.value.trim() ? 'Nhập đoạn văn bên dưới để bắt đầu.' : '';
+      renderTyping();
+      updatePracticeStats();
+    }
+
+    function startPractice() {
+      if (practice.startedAt || practice.finished) return;
+      practice.startedAt = performance.now();
+      typingArea.classList.add('started');
+      practice.timerId = window.setInterval(() => {
+        updatePracticeStats();
+        if (practice.mode === 'time' && practice.duration - Math.floor((performance.now() - practice.startedAt) / 1000) <= 0) finishPractice();
+      }, 100);
+    }
+
+    function handlePracticeInput() {
+      if (practice.finished || practice.composing) return;
+      practice.typed = practiceInput.value.replace(/\r?\n/g, ' ');
+      if (practice.typed !== practiceInput.value) practiceInput.value = practice.typed;
+      if (practice.typed.length) startPractice();
+      renderTyping();
+      updatePracticeStats();
+      if (practice.mode !== 'time' && practice.typed.length >= practice.target.length) finishPractice();
+    }
+
+    document.querySelectorAll('[data-page-target]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.pageTarget;
+        document.querySelectorAll('.page').forEach((page) => page.classList.toggle('active', page.id === `page-${target}`));
+        document.querySelectorAll('[data-page-target]').forEach((navButton) => {
+          if (navButton === button) navButton.setAttribute('aria-current', 'page');
+          else navButton.removeAttribute('aria-current');
+        });
+        if (target === 'practice') practiceInput.focus();
+      });
+    });
+
+    document.querySelector('#settings-toggle').addEventListener('click', (event) => {
+      const open = document.querySelector('#settings-panel').classList.toggle('open');
+      event.currentTarget.setAttribute('aria-expanded', String(open));
+      if (open) document.querySelector('#settings-panel').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+    document.querySelector('#close-settings').addEventListener('click', () => {
+      document.querySelector('#settings-panel').classList.remove('open');
+      document.querySelector('#settings-toggle').setAttribute('aria-expanded', 'false');
+    });
+
+    document.querySelectorAll('[data-theme-choice]').forEach((button) => button.addEventListener('click', () => applyTheme(button.dataset.themeChoice)));
+    document.querySelector('#font-size').addEventListener('input', (event) => {
+      document.documentElement.style.setProperty('--typing-size', `${event.target.value}px`);
+      document.querySelector('#font-size-value').textContent = `${event.target.value} px`;
+      saveSetting('font-size', event.target.value);
+    });
+    document.querySelector('#font-family').addEventListener('change', (event) => {
+      document.documentElement.style.setProperty('--typing-font', event.target.value === 'sans' ? 'var(--sans)' : 'var(--mono)');
+      saveSetting('font-family', event.target.value);
+    });
+    document.querySelector('#caret-setting').addEventListener('change', (event) => {
+      document.querySelector('#typing-text').classList.toggle('hide-caret', event.target.value === 'off');
+      saveSetting('caret', event.target.value);
+    });
+    document.querySelector('#typing-area').addEventListener('click', () => practiceInput.focus());
+    practiceInput.addEventListener('input', handlePracticeInput);
+    practiceInput.addEventListener('compositionstart', () => { practice.composing = true; });
+    practiceInput.addEventListener('compositionend', () => { practice.composing = false; handlePracticeInput(); });
+    practiceInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        resetPractice();
+      }
+    });
+    document.querySelector('#restart-practice').addEventListener('click', () => {
+      resetPractice();
+      practiceInput.focus();
+    });
+    document.querySelectorAll('[data-mode]').forEach((button) => button.addEventListener('click', () => setPracticeMode(button.dataset.mode)));
+    document.querySelectorAll('#time-options [data-value]').forEach((button) => button.addEventListener('click', () => {
+      practice.duration = Number(button.dataset.value);
+      document.querySelectorAll('#time-options [data-value]').forEach((option) => option.setAttribute('aria-pressed', String(option === button)));
+      resetPractice();
+    }));
+    document.querySelectorAll('#word-options [data-value]').forEach((button) => button.addEventListener('click', () => {
+      practice.wordCount = Number(button.dataset.value);
+      document.querySelectorAll('#word-options [data-value]').forEach((option) => option.setAttribute('aria-pressed', String(option === button)));
+      resetPractice();
+    }));
+    document.querySelector('#practice-language').addEventListener('change', (event) => {
+      practice.language = event.target.value;
+      resetPractice();
+    });
+    customText.addEventListener('input', () => {
+      if (practice.mode === 'custom') resetPractice();
+    });
+
+    applyTheme(savedSetting('theme', 'paper'));
+    const savedFontSize = savedSetting('font-size', '24');
+    document.querySelector('#font-size').value = savedFontSize;
+    document.documentElement.style.setProperty('--typing-size', `${savedFontSize}px`);
+    document.querySelector('#font-size-value').textContent = `${savedFontSize} px`;
+    const savedFontFamily = savedSetting('font-family', 'mono');
+    document.querySelector('#font-family').value = savedFontFamily;
+    document.documentElement.style.setProperty('--typing-font', savedFontFamily === 'sans' ? 'var(--sans)' : 'var(--mono)');
+    const savedCaret = savedSetting('caret', 'on');
+    document.querySelector('#caret-setting').value = savedCaret;
+    document.querySelector('#typing-text').classList.toggle('hide-caret', savedCaret === 'off');
+    customText.value = sampleCustomText;
+    resetPractice();
+    practiceInput.focus();
   </script>
 </body>
 </html>
